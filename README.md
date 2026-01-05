@@ -41,3 +41,27 @@ docker build -t wazuh-mitm .
 ```bash
 docker run -d --name wazuh-mitm -p 8005:8005 wazuh-mitm
 ```
+Or bind the python file and certificate from host machine:
+```bash
+docker run -d --name wazuh-mitm \
+  -p 8005:8005 \
+  -v "D:\vs code\Python\POC\wazuh-mitm\wazuh_reverse.py:/app/wazuh_reverse.py" \
+  -v "D:\vs code\Python\POC\wazuh-mitm\certs\wazuh-proxy.pem:/certs/wazuh-proxy.pem" \
+  wazuh-mitm
+```
+The proxy will be available at:
+```
+https://HOST_IP:8005
+```
+
+Changes to `wazuh_reverse.py` now take effect **without rebuilding** the image. It only require to restart the container.
+
+
+## Forwarding Behavior
+
+The proxy forwards traffic using mitmproxy reverse mode:
+```bash
+--mode reverse:https://host.docker.internal:443
+```
+
+All requests received on port `8005` are forwarded to the Wazuh Manager on port `443`, and responses are sent back through the same proxy connection.
